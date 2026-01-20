@@ -121,37 +121,40 @@
     import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
     window.sendMessage = async function() {
-        // キーの前後の空白を削除する処理を追加（念の為の安全策）
-        const apiKey = document.getElementById('apiKeyInput').value.trim();
+        const apiKey = document.getElementById('apiKeyInput').value;
+        const userInput = document.getElementById('userInput');
         const chatBox = document.getElementById('chatBox');
-        
+        const loading = document.getElementById('loadingIndicator');
+        const messageText = userInput.value.trim();
+
         if (!apiKey) {
             alert("APIキーを入力してください");
             return;
         }
+        if (!messageText) return;
 
-        // 診断開始のメッセージ
-        appendMessage("💉 診断モード起動：このキーで使えるモデルをGoogleに問い合わせています...", 'ai-message');
+        // ユーザーのメッセージを表示
+        appendMessage(messageText, 'user-message');
+        userInput.value = '';
+        loading.style.display = 'block';
 
         try {
-            // SDKを使わず、直接通信して「メニュー表」を取り寄せる
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-            const data = await response.json();
+            const genAI = new GoogleGenerativeAI(apiKey);
+            
+            // ★ここを修正しました！診断結果にあった「2.5」を使います
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-            if (data.error) {
-                // エラーの場合
-                appendMessage("❌ 診断エラー: " + JSON.stringify(data.error, null, 2), 'ai-message');
-                appendMessage("👉 ヒント: プロジェクト自体がモデル利用を許可されていない可能性があります。", 'ai-message');
-            } else {
-                // 成功の場合
-                const names = data.models.map(m => m.name.replace('models/', '')).join('\n');
-                appendMessage("✅ 成功！あなたのキーで確実に使えるモデル名は以下の通りです：", 'ai-message');
-                appendMessage("-------------------\n" + names + "\n-------------------", 'ai-message');
-                appendMessage("👉 このリストの中にある名前を使えば、100%動きます。", 'ai-message');
-            }
+            const result = await model.generateContent(messageText);
+            const response = await result.response;
+            const text = response.text();
+
+            appendMessage(text, 'ai-message');
 
         } catch (error) {
-            appendMessage("通信エラー: " + error.message, 'ai-message');
+            console.error(error);
+            appendMessage("エラー: " + error.message, 'ai-message');
+        } finally {
+            loading.style.display = 'none';
         }
     }
 
@@ -159,13 +162,19 @@
         const chatBox = document.getElementById('chatBox');
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', className);
-        messageDiv.innerText = text;
+        messageDiv.innerText = text; 
         chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    window.handleKeyPress = function(event) {
+        if (event.key === 'Enter') sendMessage();
     }
 </script>
 
 </body>
 
 </html>
+
 
 
