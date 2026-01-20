@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Simple Chatbot Demo</title>
+    <style>
+        /* シンプルで清潔感のあるデザイン（コストをかけない美学） */
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .settings {
+            padding: 10px;
+            background: #e9ecef;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.9em;
+        }
+        .settings input {
+            width: 70%;
+            padding: 5px;
+        }
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+        .user-message {
+            align-self: flex-end;
+            background-color: #007bff;
+            color: white;
+            border-bottom-right-radius: 0;
+        }
+        .ai-message {
+            align-self: flex-start;
+            background-color: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 0;
+        }
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #218838; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        .loading { font-size: 0.8em; color: #888; align-self: flex-start; margin-left: 10px; display: none;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h3>AI Assistant Portfolio</h3>
+        <small>Powered by Google Gemini API</small>
+    </div>
+
+    <div class="settings">
+        <label>API Key:</label>
+        <input type="password" id="apiKeyInput" placeholder="ここにGoogle AI Studioのキーを入力">
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        <div class="message ai-message">こんにちは！何かお手伝いしましょうか？</div>
+    </div>
+    <div class="loading" id="loadingIndicator">Geminiが考え中...</div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="メッセージを入力..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()" id="sendBtn">送信</button>
+    </div>
+</div>
+
+<script type="module">
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+    window.sendMessage = async function() {
+        const apiKey = document.getElementById('apiKeyInput').value;
+        const userInput = document.getElementById('userInput');
+        const chatBox = document.getElementById('chatBox');
+        const loading = document.getElementById('loadingIndicator');
+        const messageText = userInput.value.trim();
+
+        // バリデーション
+        if (!apiKey) {
+            alert("APIキーを入力してください。\n(Google AI Studioで無料で取得できます)");
+            return;
+        }
+        if (!messageText) return;
+
+        // 1. ユーザーのメッセージを表示
+        appendMessage(messageText, 'user-message');
+        userInput.value = '';
+        loading.style.display = 'block';
+
+        try {
+            // 2. Gemini APIの初期化
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+            // 3. APIにリクエスト送信（生成）
+            const result = await model.generateContent(messageText);
+            const response = await result.response;
+            const text = response.text();
+
+            // 4. AIの回答を表示
+            appendMessage(text, 'ai-message');
+
+        } catch (error) {
+            console.error(error);
+            appendMessage("エラーが発生しました: " + error.message, 'ai-message');
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    // メッセージを画面に追加する関数
+    function appendMessage(text, className) {
+        const chatBox = document.getElementById('chatBox');
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', className);
+        // 簡単な改行コードの変換のみ実施
+        messageDiv.innerText = text; 
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight; // 自動スクロール
+    }
+
+    // Enterキーで送信
+    window.handleKeyPress = function(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+</script>
+
+</body>
+</html>
