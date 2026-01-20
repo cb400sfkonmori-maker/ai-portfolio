@@ -142,7 +142,7 @@
             const genAI = new GoogleGenerativeAI(apiKey);
             
             // ★ここを修正しました！診断結果にあった「2.5」を使います
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
             const result = await model.generateContent(messageText);
             const response = await result.response;
@@ -175,6 +175,7 @@
 </body>
 
 </html>
+
 
 
 
