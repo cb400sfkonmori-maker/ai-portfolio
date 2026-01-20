@@ -142,7 +142,7 @@
         try {
             // 2. Gemini APIの初期化
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
+            const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
             // 3. APIにリクエスト送信（生成）
             const result = await model.generateContent(messageText);
@@ -182,3 +182,4 @@
 </body>
 
 </html>
+
