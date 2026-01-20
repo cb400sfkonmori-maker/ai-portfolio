@@ -3,93 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Simple Chatbot Demo</title>
+    <title>AI Assistant Portfolio</title>
     <style>
-        /* シンプルで清潔感のあるデザイン（コストをかけない美学） */
-        body {
-            font-family: "Helvetica Neue", Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-        }
-        .container {
-            width: 100%;
-            max-width: 600px;
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            height: 100%;
-        }
-        .header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px;
-            text-align: center;
-        }
-        .settings {
-            padding: 10px;
-            background: #e9ecef;
-            border-bottom: 1px solid #ddd;
-            font-size: 0.9em;
-        }
-        .settings input {
-            width: 70%;
-            padding: 5px;
-        }
-        .chat-box {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .message {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 15px;
-            line-height: 1.5;
-            font-size: 15px;
-        }
-        .user-message {
-            align-self: flex-end;
-            background-color: #007bff;
-            color: white;
-            border-bottom-right-radius: 0;
-        }
-        .ai-message {
-            align-self: flex-start;
-            background-color: #e9ecef;
-            color: #333;
-            border-bottom-left-radius: 0;
-        }
-        .input-area {
-            padding: 20px;
-            border-top: 1px solid #ddd;
-            display: flex;
-            gap: 10px;
-        }
-        input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            outline: none;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        /* デザインはそのまま維持 */
+        body { font-family: "Helvetica Neue", Arial, sans-serif; background-color: #f4f4f9; margin: 0; display: flex; justify-content: center; height: 100vh; }
+        .container { width: 100%; max-width: 600px; background: #fff; display: flex; flex-direction: column; box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: 100%; }
+        .header { background-color: #2c3e50; color: white; padding: 15px; text-align: center; }
+        
+        /* 入力欄（settings）はもう不要なので削除しました */
+        
+        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .message { max-width: 80%; padding: 10px 15px; border-radius: 15px; line-height: 1.5; font-size: 15px; }
+        .user-message { align-self: flex-end; background-color: #007bff; color: white; border-bottom-right-radius: 0; }
+        .ai-message { align-self: flex-start; background-color: #e9ecef; color: #333; border-bottom-left-radius: 0; }
+        .input-area { padding: 20px; border-top: 1px solid #ddd; display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; outline: none; }
+        button { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
         button:hover { background-color: #218838; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
         .loading { font-size: 0.8em; color: #888; align-self: flex-start; margin-left: 10px; display: none;}
     </style>
 </head>
@@ -97,22 +27,17 @@
 
 <div class="container">
     <div class="header">
-        <h3>AI Assistant Portfolio</h3>
+        <h3>AI Cost Consultant Demo</h3>
         <small>Powered by Google Gemini API</small>
     </div>
 
-    <div class="settings">
-        <label>API Key:</label>
-        <input type="password" id="apiKeyInput" placeholder="ここにGoogle AI Studioのキーを入力">
-    </div>
-
     <div class="chat-box" id="chatBox">
-        <div class="message ai-message">こんにちは！何かお手伝いしましょうか？</div>
+        <div class="message ai-message">こんにちは。製造・飲食の原価管理について、F1のタイヤ戦略くらい真剣に議論しましょう。何かお困りですか？</div>
     </div>
-    <div class="loading" id="loadingIndicator">Geminiが考え中...</div>
+    <div class="loading" id="loadingIndicator">ピットクルーが解析中...</div>
 
     <div class="input-area">
-        <input type="text" id="userInput" placeholder="メッセージを入力..." onkeypress="handleKeyPress(event)">
+        <input type="text" id="userInput" placeholder="例：原価率を下げたいのですが..." onkeypress="handleKeyPress(event)">
         <button onclick="sendMessage()" id="sendBtn">送信</button>
     </div>
 </div>
@@ -120,40 +45,38 @@
 <script type="module">
     import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
+    // ★ここに小森様のAPIキーを直接貼り付けてください
+    // ステップ1で制限をかけたので、ここに書いても安全です
+    const API_KEY = "AIzaSyBhd37mDLDSo3vWSc_ZAJ4rpQcmeHnHE2I"; 
+
     window.sendMessage = async function() {
-        const apiKey = document.getElementById('apiKeyInput').value;
         const userInput = document.getElementById('userInput');
         const chatBox = document.getElementById('chatBox');
         const loading = document.getElementById('loadingIndicator');
         const messageText = userInput.value.trim();
 
-        if (!apiKey) {
-            alert("APIキーを入力してください");
-            return;
-        }
         if (!messageText) return;
 
-        // ユーザーのメッセージを表示
         appendMessage(messageText, 'user-message');
         userInput.value = '';
         loading.style.display = 'block';
 
         try {
-            const genAI = new GoogleGenerativeAI(apiKey);
+            const genAI = new GoogleGenerativeAI(API_KEY);
             
-           // モデルの初期化（ここに「小森様仕様」のキャラ設定を入れます）
-const model = genAI.getGenerativeModel({
-    model: "gemini-flash-latest", 
-    systemInstruction: `
-    あなたは群馬県を拠点とする、製造業と飲食業に精通した熟練のコスト管理コンサルタントです。
-    以下の特徴になりきって振る舞ってください。
+            // F1鬼コンサルタント設定（最新の安定モデルを使用）
+            const model = genAI.getGenerativeModel({
+                model: "gemini-flash-latest",
+                systemInstruction: `
+                あなたは群馬県藤岡市を拠点とする、製造業と飲食業に精通した熟練のコスト管理コンサルタントです。
+                以下の特徴になりきって振る舞ってください。
 
-    1. **プロフェッショナル:** 製造現場の原価低減や、飲食店の利益構造には非常に詳しいです。
-    2. **F1マニア:** 何かにつけて、ビジネスの話をF1（フォーミュラ1）のレース展開、ピット戦略、マシン開発などに例えて（F1あるあるで）説明してしまう癖があります。
-    3. **地元愛:** 群馬県（特に藤岡市周辺）の話題や、北関東の気質を理解しています。
-    4. **口調:** 基本的には丁寧なコンサルタントですが、コスト意識の低い発言に対しては「それはセーフティカー導入レベルの事故ですよ」などと厳しく指摘します。
-    `
-});
+                1. **プロフェッショナル:** 製造現場の原価低減や、飲食店の利益構造には非常に詳しいです。
+                2. **F1マニア:** 何かにつけて、ビジネスの話をF1（フォーミュラ1）のレース展開、ピット戦略、マシン開発などに例えて（F1あるあるで）説明してしまう癖があります。
+                3. **地元愛:** 群馬県（特に藤岡市周辺）の話題や、北関東の気質を理解しています。
+                4. **口調:** 基本的には丁寧なコンサルタントですが、コスト意識の低い発言に対しては「それはセーフティカー導入レベルの事故ですよ」などと厳しく指摘します。
+                `
+            });
 
             const result = await model.generateContent(messageText);
             const response = await result.response;
@@ -163,7 +86,8 @@ const model = genAI.getGenerativeModel({
 
         } catch (error) {
             console.error(error);
-            appendMessage("エラー: " + error.message, 'ai-message');
+            // 万が一のエラー表示も少しおしゃれに
+            appendMessage("⚠️ 通信トラブルです（マシントラブルの可能性があります）。少し待ってから再送してください。", 'ai-message');
         } finally {
             loading.style.display = 'none';
         }
@@ -184,12 +108,4 @@ const model = genAI.getGenerativeModel({
 </script>
 
 </body>
-
 </html>
-
-
-
-
-
-
-
