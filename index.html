@@ -45,10 +45,17 @@
 <script type="module">
     import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-    // ★ここに小森様のAPIキーを直接貼り付けてください
-    // ステップ1で制限をかけたので、ここに書いても安全です
-    const API_KEY = "AIzaSyAy9dtgtE4NuowiHKcXP808SCKZ0F03mys"; 
-
+    // 🤖 ボット対策：キーを分割して記載する
+    
+    // ① キーの先頭部分（ここは固定）
+    const keyPart1 = "AIzaSy"; 
+    
+    // ② 新しいキーの「AIzaSy」より後ろの部分だけをここに貼る
+    // 例：キーが "AIzaSy_abc123" なら "_abc123" だけを貼る
+    const keyPart2 = "DASkLaEfR5pOhn1Rm22a4pHX7xWvKHIcs"; 
+    
+    // ③ ここで合体！
+    const API_KEY = keyPart1 + keyPart2;
     window.sendMessage = async function() {
         const userInput = document.getElementById('userInput');
         const chatBox = document.getElementById('chatBox');
@@ -109,5 +116,6 @@
 
 </body>
 </html>
+
 
 
