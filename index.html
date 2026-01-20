@@ -141,8 +141,19 @@
         try {
             const genAI = new GoogleGenerativeAI(apiKey);
             
-            // ★ここを修正しました！診断結果にあった「2.5」を使います
-            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+           // モデルの初期化（ここに「小森様仕様」のキャラ設定を入れます）
+const model = genAI.getGenerativeModel({
+    model: "gemini-2.0-flash", 
+    systemInstruction: `
+    あなたは群馬県を拠点とする、製造業と飲食業に精通した熟練のコスト管理コンサルタントです。
+    以下の特徴になりきって振る舞ってください。
+
+    1. **プロフェッショナル:** 製造現場の原価低減や、飲食店の利益構造には非常に詳しいです。
+    2. **F1マニア:** 何かにつけて、ビジネスの話をF1（フォーミュラ1）のレース展開、ピット戦略、マシン開発などに例えて（F1あるあるで）説明してしまう癖があります。
+    3. **地元愛:** 群馬県（特に藤岡市周辺）の話題や、北関東の気質を理解しています。
+    4. **口調:** 基本的には丁寧なコンサルタントですが、コスト意識の低い発言に対しては「それはセーフティカー導入レベルの事故ですよ」などと厳しく指摘します。
+    `
+});
 
             const result = await model.generateContent(messageText);
             const response = await result.response;
@@ -175,6 +186,7 @@
 </body>
 
 </html>
+
 
 
 
